@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2025 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 #define LOG_TAG "DisplayModesService"
 
-#include "DisplayModes.h"
 #include <android-base/logging.h>
+#include <livedisplay/samsung/DisplayModes.h>
+
 #include <fstream>
 
 namespace vendor {
@@ -28,21 +29,17 @@ namespace samsung {
 
 static constexpr const char* kModePath = "/sys/class/mdnie/mdnie/mode";
 static constexpr const char* kModeMaxPath = "/sys/class/mdnie/mdnie/mode_max";
-#ifdef LIVES_IN_SYSTEM
-static constexpr const char* kDefaultPath = "/data/misc/display/.displaymodedefault";
-#else
 static constexpr const char* kDefaultPath = "/data/vendor/display/.displaymodedefault";
-#endif
 
 const std::map<int32_t, std::string> DisplayModes::kModeMap = {
-    // clang-format off
+        // clang-format off
     {0, "Dynamic"},
     {1, "Standard"},
     {2, "Natural"},
     {3, "Cinema"},
     {4, "Adaptive"},
     {5, "Reading"},
-    // clang-format on
+        // clang-format on
 };
 
 DisplayModes::DisplayModes() : mDefaultModeId(0) {

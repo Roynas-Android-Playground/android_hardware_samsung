@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The LineageOS Project
+ * Copyright (C) 2019-2025 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 #include <android-base/file.h>
 #include <android-base/strings.h>
+#include <livedisplay/samsung/DisplayColorCalibration.h>
 
 #include <fstream>
-
-#include "DisplayColorCalibration.h"
 
 using android::base::ReadFileToString;
 using android::base::Split;
@@ -32,26 +31,27 @@ namespace livedisplay {
 namespace V2_0 {
 namespace samsung {
 
-bool DisplayColorCalibration::isSupported() {
-    std::fstream rgb(FILE_RGB, rgb.in | rgb.out);
+static constexpr const char* kColorPath = "/sys/class/mdnie/mdnie/sensorRGB";
 
+bool DisplayColorCalibration::isSupported() {
+    std::fstream rgb(kColorPath, rgb.in | rgb.out);
     return rgb.good();
 }
 
 // Methods from ::vendor::lineage::livedisplay::V2_0::IDisplayColorCalibration follow.
 Return<int32_t> DisplayColorCalibration::getMaxValue() {
-    return 32768;
+    return 255;
 }
 
 Return<int32_t> DisplayColorCalibration::getMinValue() {
-    return 255;
+    return 1;
 }
 
 Return<void> DisplayColorCalibration::getCalibration(getCalibration_cb _hidl_cb) {
     std::vector<int32_t> rgb;
     std::string tmp;
 
-    if (ReadFileToString(FILE_RGB, &tmp)) {
+    if (ReadFileToString(kColorPath, &tmp)) {
         std::vector<std::string> colors = Split(Trim(tmp), " ");
         for (const std::string& color : colors) {
             rgb.push_back(std::stoi(color));
@@ -69,7 +69,7 @@ Return<bool> DisplayColorCalibration::setCalibration(const hidl_vec<int32_t>& rg
         contents += std::to_string(color) + " ";
     }
 
-    return WriteStringToFile(Trim(contents), FILE_RGB, true);
+    return WriteStringToFile(Trim(contents), kColorPath, true);
 }
 
 }  // namespace samsung
